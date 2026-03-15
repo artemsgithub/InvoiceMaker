@@ -136,6 +136,8 @@
   .app {
     padding: 0;
     padding-bottom: 72px;
+    overflow-x: hidden;
+    width: 100%;
   }
 
   .app-header {
@@ -157,10 +159,17 @@
     display: flex !important;
   }
 
+  .app-body {
+    overflow: hidden;
+  }
+
   .form-panel {
     padding: 16px;
     border: none;
     border-radius: 0;
+    overflow: hidden;
+    max-width: 100vw;
+    box-sizing: border-box;
   }
 
   .app-footer {

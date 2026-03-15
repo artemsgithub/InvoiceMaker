@@ -19,6 +19,11 @@
   --radius: 8px;
 }
 
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 body {
   font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
   background: var(--bg);
@@ -53,6 +58,8 @@ select {
   background: var(--bg);
   color: var(--text);
   transition: border-color 0.2s;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 input:focus,

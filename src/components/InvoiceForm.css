@@ -314,6 +314,10 @@
 
 /* Mobile form adjustments */
 @media (max-width: 768px) {
+  .invoice-form {
+    overflow: hidden;
+  }
+
   .logo-label-desktop {
     display: none;
   }
@@ -322,34 +326,64 @@
     display: inline;
   }
 
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid.three-col,
   .form-grid.four-col {
     grid-template-columns: 1fr 1fr;
   }
 
+  .line-item-card {
+    overflow: hidden;
+  }
+
   .line-item-fields {
     flex-wrap: wrap;
+    width: 100%;
+    min-width: 0;
   }
 
   .li-item {
     flex: 1 1 100%;
+    min-width: 0;
   }
 
   .li-desc {
     flex: 1 1 100%;
+    min-width: 0;
   }
 
-  .li-qty,
+  .li-qty {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
+
   .li-rate {
-    flex: 1;
+    flex: 1 1 0;
     width: auto;
     min-width: 0;
   }
 
   .li-total {
+    flex: 0 0 auto;
     width: auto;
+    min-width: 0;
+    font-size: 0.85rem;
   }
 
   .line-items-actions {
+    flex-wrap: wrap;
+  }
+
+  .modal {
+    width: calc(100% - 32px);
+    padding: 20px 16px;
+  }
+
+  .modal-actions {
     flex-wrap: wrap;
   }
 }
