@@ -25,6 +25,10 @@
   grid-template-columns: 1fr 1fr 1fr;
 }
 
+.form-grid.four-col {
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
 .form-field {
   display: flex;
   flex-direction: column;

@@ -42,10 +42,10 @@ export default function InvoicePreview({
             )}
           </div>
           <div className="preview-invoice-info">
-            <h1 className="invoice-title">INVOICE</h1>
+            <h1 className="invoice-title">{invoice.documentType || 'INVOICE'}</h1>
             {invoice.invoiceNumber && (
               <p>
-                <span className="info-label">Invoice #</span>{' '}
+                <span className="info-label">{invoice.documentType === 'ESTIMATE' ? 'Estimate' : 'Invoice'} #</span>{' '}
                 {invoice.invoiceNumber}
               </p>
             )}

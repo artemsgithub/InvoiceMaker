@@ -109,6 +109,8 @@
 
 .preview-table tbody tr {
   border-bottom: 1px solid var(--border);
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .preview-table td {
@@ -143,6 +145,11 @@
   width: 16%;
 }
 
+.category-row {
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
 .category-row td {
   font-size: 0.8rem;
   font-weight: 600;
@@ -151,6 +158,23 @@
   color: var(--text-light);
   padding: 16px 8px 6px;
   border-bottom: none;
+}
+
+/* PDF page break rules */
+.preview-header,
+.preview-billto {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.preview-totals {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.preview-notes {
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 /* Totals */
