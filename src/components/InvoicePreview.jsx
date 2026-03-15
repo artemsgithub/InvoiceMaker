@@ -107,17 +107,72 @@ export default function InvoicePreview({
             </tr>
           </thead>
           <tbody>
-            {invoice.lineItems.map((li) => (
-              <tr key={li.id}>
-                <td className="col-item">{li.item}</td>
-                <td className="col-desc">{li.description}</td>
-                <td className="col-qty">{li.qty}</td>
-                <td className="col-rate">{formatCurrency(li.rate)}</td>
-                <td className="col-total">
-                  {formatCurrency((Number(li.qty) || 0) * (Number(li.rate) || 0))}
-                </td>
-              </tr>
-            ))}
+            {(() => {
+              const hasCategories = invoice.lineItems.some(li => li.category)
+              if (!hasCategories) {
+                return invoice.lineItems.map((li) => (
+                  <tr key={li.id}>
+                    <td className="col-item">{li.item}</td>
+                    <td className="col-desc">{li.description}</td>
+                    <td className="col-qty">{li.qty}</td>
+                    <td className="col-rate">{formatCurrency(li.rate)}</td>
+                    <td className="col-total">
+                      {formatCurrency((Number(li.qty) || 0) * (Number(li.rate) || 0))}
+                    </td>
+                  </tr>
+                ))
+              }
+              // Group by category
+              const grouped = {}
+              const categoryOrder = []
+              const uncategorized = []
+              for (const li of invoice.lineItems) {
+                if (li.category) {
+                  if (!categoryOrder.includes(li.category)) categoryOrder.push(li.category)
+                  if (!grouped[li.category]) grouped[li.category] = []
+                  grouped[li.category].push(li)
+                } else {
+                  uncategorized.push(li)
+                }
+              }
+              const rows = []
+              for (const cat of categoryOrder) {
+                rows.push(
+                  <tr key={`cat-${cat}`} className="category-row">
+                    <td colSpan={5}>{cat}</td>
+                  </tr>
+                )
+                for (const li of grouped[cat]) {
+                  rows.push(
+                    <tr key={li.id}>
+                      <td className="col-item">{li.item}</td>
+                      <td className="col-desc">{li.description}</td>
+                      <td className="col-qty">{li.qty}</td>
+                      <td className="col-rate">{formatCurrency(li.rate)}</td>
+                      <td className="col-total">
+                        {formatCurrency((Number(li.qty) || 0) * (Number(li.rate) || 0))}
+                      </td>
+                    </tr>
+                  )
+                }
+              }
+              if (uncategorized.length > 0) {
+                for (const li of uncategorized) {
+                  rows.push(
+                    <tr key={li.id}>
+                      <td className="col-item">{li.item}</td>
+                      <td className="col-desc">{li.description}</td>
+                      <td className="col-qty">{li.qty}</td>
+                      <td className="col-rate">{formatCurrency(li.rate)}</td>
+                      <td className="col-total">
+                        {formatCurrency((Number(li.qty) || 0) * (Number(li.rate) || 0))}
+                      </td>
+                    </tr>
+                  )
+                }
+              }
+              return rows
+            })()}
           </tbody>
         </table>
 

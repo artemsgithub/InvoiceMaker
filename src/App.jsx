@@ -4,12 +4,15 @@ import InvoicePreview from './components/InvoicePreview'
 import SavedInvoices from './components/SavedInvoices'
 import './App.css'
 
+const DEFAULT_CATEGORIES = ['Labor', 'Materials', 'Equipment', 'Travel', 'Other']
+
 const emptyLineItem = () => ({
   id: crypto.randomUUID(),
   item: '',
   description: '',
   qty: 1,
   rate: 0,
+  category: '',
 })
 
 const defaultInvoice = () => ({
@@ -58,6 +61,75 @@ export default function App() {
       ...prev,
       lineItems: prev.lineItems.filter(li => li.id !== id),
     }))
+  }
+
+  const importMarkdownItems = (markdown) => {
+    const lines = markdown.trim().split('\n')
+    const newItems = []
+
+    // Try parsing as markdown table
+    const tableRows = lines.filter(line => line.includes('|') && !line.match(/^\s*\|?\s*[-:]+/))
+    if (tableRows.length > 0) {
+      for (const row of tableRows) {
+        const cells = row.split('|').map(c => c.trim()).filter(Boolean)
+        if (cells.length >= 2) {
+          // Skip header row if it looks like one
+          if (cells[0].toLowerCase() === 'item' && cells[1].toLowerCase() === 'description') continue
+          newItems.push({
+            id: crypto.randomUUID(),
+            item: cells[0] || '',
+            description: cells[1] || '',
+            qty: Number(cells[2]) || 1,
+            rate: Number(String(cells[3] || '').replace(/[$,]/g, '')) || 0,
+            category: '',
+          })
+        }
+      }
+    }
+
+    // Fallback: parse as "- Item: Description" or "Item - Description" lines
+    if (newItems.length === 0) {
+      for (const line of lines) {
+        const trimmed = line.replace(/^[-*]\s*/, '').trim()
+        if (!trimmed) continue
+        // Try "Item: Description" format
+        let match = trimmed.match(/^(.+?):\s+(.+)$/)
+        if (!match) {
+          // Try "Item - Description" format
+          match = trimmed.match(/^(.+?)\s+[-\u2013\u2014]\s+(.+)$/)
+        }
+        if (match) {
+          newItems.push({
+            id: crypto.randomUUID(),
+            item: match[1].trim(),
+            description: match[2].trim(),
+            qty: 1,
+            rate: 0,
+            category: '',
+          })
+        } else {
+          newItems.push({
+            id: crypto.randomUUID(),
+            item: trimmed,
+            description: '',
+            qty: 1,
+            rate: 0,
+            category: '',
+          })
+        }
+      }
+    }
+
+    if (newItems.length > 0) {
+      setInvoice(prev => ({
+        ...prev,
+        lineItems: [
+          ...prev.lineItems.filter(li => li.item || li.description),
+          ...newItems,
+        ],
+      }))
+    }
+    return newItems.length
   }
 
   const handleLogoUpload = (e) => {
@@ -127,6 +199,7 @@ export default function App() {
           onLoad={loadInvoice}
           onDelete={deleteInvoice}
         />
+        <footer className="app-footer">v1.0</footer>
       </div>
     )
   }
@@ -148,12 +221,14 @@ export default function App() {
           <InvoiceForm
             invoice={invoice}
             logo={logo}
+            categories={DEFAULT_CATEGORIES}
             onUpdateField={updateField}
             onUpdateLineItem={updateLineItem}
             onAddLineItem={addLineItem}
             onRemoveLineItem={removeLineItem}
             onLogoUpload={handleLogoUpload}
             onRemoveLogo={removeLogo}
+            onImportMarkdown={importMarkdownItems}
           />
         </div>
         <div className="preview-panel">
@@ -166,6 +241,7 @@ export default function App() {
           />
         </div>
       </div>
+      <footer className="app-footer">v1.0</footer>
     </div>
   )
 }
