@@ -48,21 +48,26 @@
 
 /* Logo */
 .logo-upload-label {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 160px;
-  height: 80px;
-  border: 2px dashed var(--border);
+  gap: 8px;
+  padding: 10px 20px;
+  border: 1.5px dashed var(--border);
   border-radius: var(--radius);
   cursor: pointer;
   font-size: 0.85rem;
   color: var(--text-light);
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, color 0.2s;
 }
 
 .logo-upload-label:hover {
   border-color: var(--accent);
+  color: var(--accent);
+}
+
+.logo-label-mobile {
+  display: none;
 }
 
 .logo-preview-wrap {
@@ -306,6 +311,14 @@
 
 /* Mobile form adjustments */
 @media (max-width: 768px) {
+  .logo-label-desktop {
+    display: none;
+  }
+
+  .logo-label-mobile {
+    display: inline;
+  }
+
   .form-grid.four-col {
     grid-template-columns: 1fr 1fr;
   }
