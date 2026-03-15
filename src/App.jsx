@@ -7,9 +7,19 @@ import ChangelogModal from './components/ChangelogModal'
 import Toast from './components/Toast'
 import './App.css'
 
-const APP_VERSION = '1.0.2'
+const APP_VERSION = '1.0.3'
 
 const CHANGELOG = [
+  {
+    version: '1.0.3',
+    date: '2026-03-15',
+    changes: [
+      'Soft-delete line items with Deleted Items recovery modal',
+      'Mobile-responsive layout with full-screen preview modal',
+      'Saved invoices actions replaced with icon buttons',
+      'Download PDF button added to saved invoices list',
+    ],
+  },
   {
     version: '1.0.2',
     date: '2026-03-15',
@@ -81,8 +91,10 @@ export default function App() {
     const saved = localStorage.getItem('invoiceCategories')
     return saved ? JSON.parse(saved) : DEFAULT_CATEGORIES
   })
+  const [deletedItems, setDeletedItems] = useState([])
   const [showSettings, setShowSettings] = useState(false)
   const [showChangelog, setShowChangelog] = useState(false)
+  const [showMobilePreview, setShowMobilePreview] = useState(false)
   const [toast, setToast] = useState(null)
 
   const showToast = useCallback((message, type = 'success') => {
@@ -110,10 +122,31 @@ export default function App() {
   }
 
   const removeLineItem = (id) => {
+    const item = invoice.lineItems.find(li => li.id === id)
+    if (item) {
+      setDeletedItems(prev => [...prev, item])
+    }
     setInvoice(prev => ({
       ...prev,
       lineItems: prev.lineItems.filter(li => li.id !== id),
     }))
+  }
+
+  const restoreLineItem = (id) => {
+    const item = deletedItems.find(di => di.id === id)
+    if (item) {
+      setDeletedItems(prev => prev.filter(di => di.id !== id))
+      setInvoice(prev => ({
+        ...prev,
+        lineItems: [...prev.lineItems, item],
+      }))
+      showToast('Item restored')
+    }
+  }
+
+  const permanentlyDeleteItem = (id) => {
+    setDeletedItems(prev => prev.filter(di => di.id !== id))
+    showToast('Item permanently deleted', 'info')
   }
 
   const importMarkdownItems = (markdown) => {
@@ -235,19 +268,62 @@ export default function App() {
     showToast('Categories updated')
   }
 
-  const handleExportPDF = async () => {
-    const element = document.getElementById('invoice-preview-content')
+  const exportPDFFromElement = async (element, inv) => {
     if (!element) return
     const html2pdf = (await import('html2pdf.js')).default
     const opt = {
       margin: [0.4, 0.4, 0.4, 0.4],
-      filename: `${(invoice.documentType || 'invoice').toLowerCase()}-${invoice.invoiceNumber || 'draft'}.pdf`,
+      filename: `${(inv.documentType || 'invoice').toLowerCase()}-${inv.invoiceNumber || 'draft'}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
       pagebreak: { mode: ['avoid-all', 'css'] },
     }
     html2pdf().set(opt).from(element).save()
+  }
+
+  const handleExportPDF = async () => {
+    const element = document.getElementById('invoice-preview-content')
+    await exportPDFFromElement(element, invoice)
+    showToast('PDF export started')
+  }
+
+  const handleDownloadSavedPDF = async (inv) => {
+    // Temporarily render the invoice off-screen to generate PDF
+    const container = document.createElement('div')
+    container.style.position = 'fixed'
+    container.style.left = '-9999px'
+    container.style.top = '0'
+    container.style.width = '8.5in'
+    document.body.appendChild(container)
+
+    const { createRoot } = await import('react-dom/client')
+    const root = createRoot(container)
+
+    const invSubtotal = inv.lineItems.reduce(
+      (sum, li) => sum + (Number(li.qty) || 0) * (Number(li.rate) || 0), 0
+    )
+    const invTax = invSubtotal * ((Number(inv.taxRate) || 0) / 100)
+    const invTotal = invSubtotal + invTax
+
+    await new Promise(resolve => {
+      root.render(
+        <InvoicePreview
+          invoice={inv}
+          logo={logo}
+          subtotal={invSubtotal}
+          taxAmount={invTax}
+          total={invTotal}
+        />
+      )
+      setTimeout(resolve, 100)
+    })
+
+    const element = container.querySelector('.invoice-preview')
+    await exportPDFFromElement(element, inv)
+
+    root.unmount()
+    document.body.removeChild(container)
     showToast('PDF export started')
   }
 
@@ -275,6 +351,7 @@ export default function App() {
         <SavedInvoices
           onLoad={loadInvoice}
           onDelete={deleteInvoice}
+          onDownload={handleDownloadSavedPDF}
         />
         <footer className="app-footer">
           <button className="version-btn" onClick={() => setShowChangelog(true)}>
@@ -321,16 +398,19 @@ export default function App() {
             invoice={invoice}
             logo={logo}
             categories={categories}
+            deletedItems={deletedItems}
             onUpdateField={updateField}
             onUpdateLineItem={updateLineItem}
             onAddLineItem={addLineItem}
             onRemoveLineItem={removeLineItem}
+            onRestoreItem={restoreLineItem}
+            onPermanentDelete={permanentlyDeleteItem}
             onLogoUpload={handleLogoUpload}
             onRemoveLogo={removeLogo}
             onImportMarkdown={importMarkdownItems}
           />
         </div>
-        <div className="preview-panel">
+        <div className="preview-panel desktop-only">
           <InvoicePreview
             invoice={invoice}
             logo={logo}
@@ -340,6 +420,39 @@ export default function App() {
           />
         </div>
       </div>
+
+      {/* Mobile Preview Button */}
+      <button
+        className="mobile-preview-btn mobile-only"
+        onClick={() => setShowMobilePreview(true)}
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Preview &middot; ${total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+      </button>
+
+      {/* Mobile Preview Modal */}
+      {showMobilePreview && (
+        <div className="mobile-preview-modal">
+          <div className="mobile-preview-header">
+            <button className="btn-secondary" onClick={() => setShowMobilePreview(false)}>
+              Close
+            </button>
+            <span className="mobile-preview-title">Preview</span>
+            <button className="btn-primary" onClick={() => { handleExportPDF(); setShowMobilePreview(false) }}>
+              Export PDF
+            </button>
+          </div>
+          <div className="mobile-preview-body">
+            <InvoicePreview
+              invoice={invoice}
+              logo={logo}
+              subtotal={subtotal}
+              taxAmount={taxAmount}
+              total={total}
+            />
+          </div>
+        </div>
+      )}
       <footer className="app-footer">
         <button className="version-btn" onClick={() => setShowChangelog(true)}>
           v{APP_VERSION}
