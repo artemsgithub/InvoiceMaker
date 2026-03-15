@@ -1,0 +1,61 @@
+.settings-modal {
+  max-width: 480px;
+}
+
+.settings-section {
+  margin: 16px 0 20px;
+}
+
+.settings-section h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.settings-hint {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-bottom: 12px;
+}
+
+.category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.category-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 8px 4px 14px;
+  font-size: 0.85rem;
+}
+
+.chip-remove {
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 1.1rem;
+  padding: 0 4px;
+  cursor: pointer;
+  line-height: 1;
+  border-radius: 50%;
+}
+
+.chip-remove:hover {
+  background: rgba(196, 75, 75, 0.1);
+}
+
+.category-add {
+  display: flex;
+  gap: 8px;
+}
+
+.category-add input {
+  flex: 1;
+}
