@@ -58,4 +58,13 @@
 
 .category-add input {
   flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .settings-modal {
+    width: calc(100% - 32px);
+    max-width: none;
+    padding: 20px 16px;
+  }
 }
