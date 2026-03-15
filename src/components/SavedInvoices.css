@@ -1,0 +1,56 @@
+.saved-invoices {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.saved-invoices h2 {
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+}
+
+.saved-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.saved-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-light);
+  border-bottom: 2px solid var(--border);
+  background: var(--bg);
+}
+
+.saved-table td {
+  padding: 14px 16px;
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.saved-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.saved-table tbody tr:hover {
+  background: var(--bg);
+}
+
+.saved-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.saved-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-light);
+  font-size: 1.1rem;
+}
