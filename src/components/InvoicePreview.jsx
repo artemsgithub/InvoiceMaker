@@ -1,4 +1,3 @@
-import { useRef } from 'react'
 import './InvoicePreview.css'
 
 export default function InvoicePreview({
@@ -8,21 +7,6 @@ export default function InvoicePreview({
   taxAmount,
   total,
 }) {
-  const previewRef = useRef(null)
-
-  const handleExportPDF = async () => {
-    const html2pdf = (await import('html2pdf.js')).default
-    const element = previewRef.current
-    const opt = {
-      margin: 0,
-      filename: `invoice-${invoice.invoiceNumber || 'draft'}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-    }
-    html2pdf().set(opt).from(element).save()
-  }
-
   const formatCurrency = (val) => {
     return '$' + Number(val).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   }
@@ -39,11 +23,7 @@ export default function InvoicePreview({
 
   return (
     <div className="preview-wrapper">
-      <button className="btn-primary export-btn" onClick={handleExportPDF}>
-        Export PDF
-      </button>
-
-      <div className="invoice-preview" ref={previewRef}>
+      <div className="invoice-preview" id="invoice-preview-content">
         {/* Header */}
         <div className="preview-header">
           <div className="preview-company">

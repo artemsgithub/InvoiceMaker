@@ -2,12 +2,6 @@
   position: relative;
 }
 
-.export-btn {
-  position: absolute;
-  top: -48px;
-  right: 0;
-}
-
 .invoice-preview {
   background: #ffffff;
   border: 1px solid var(--border);
