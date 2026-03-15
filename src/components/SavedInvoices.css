@@ -48,9 +48,62 @@
   gap: 8px;
 }
 
+.saved-actions .btn-icon-danger {
+  color: var(--danger);
+}
+
+.saved-actions .btn-icon-danger:hover {
+  background: rgba(196, 75, 75, 0.1);
+}
+
 .saved-empty {
   text-align: center;
   padding: 60px 20px;
   color: var(--text-light);
   font-size: 1.1rem;
+}
+
+/* Mobile: card layout for saved invoices */
+@media (max-width: 768px) {
+  .saved-table thead {
+    display: none;
+  }
+
+  .saved-table,
+  .saved-table tbody,
+  .saved-table tr,
+  .saved-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .saved-table tr {
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    background: var(--bg-card);
+  }
+
+  .saved-table td {
+    padding: 4px 0;
+    border-bottom: none;
+    font-size: 0.85rem;
+  }
+
+  .saved-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-light);
+    margin-right: 8px;
+  }
+
+  .saved-actions {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
 }

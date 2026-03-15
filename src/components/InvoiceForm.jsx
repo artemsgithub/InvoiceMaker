@@ -5,15 +5,20 @@ export default function InvoiceForm({
   invoice,
   logo,
   categories,
+  deletedItems,
   onUpdateField,
   onUpdateLineItem,
   onAddLineItem,
   onRemoveLineItem,
+  onRestoreItem,
+  onPermanentDelete,
   onLogoUpload,
   onRemoveLogo,
   onImportMarkdown,
 }) {
   const [showPasteModal, setShowPasteModal] = useState(false)
+  const [showDeletedModal, setShowDeletedModal] = useState(false)
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null)
   const [pasteText, setPasteText] = useState('')
 
   const handlePasteImport = () => {
@@ -215,8 +220,79 @@ export default function InvoiceForm({
           >
             Paste Markdown
           </button>
+          {deletedItems.length > 0 && (
+            <button
+              className="btn-secondary btn-small btn-deleted"
+              onClick={() => setShowDeletedModal(true)}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              Deleted Items ({deletedItems.length})
+            </button>
+          )}
         </div>
       </section>
+
+      {/* Deleted Items Modal */}
+      {showDeletedModal && (
+        <div className="modal-overlay" onClick={() => { setShowDeletedModal(false); setConfirmDeleteId(null) }}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h3>Deleted Items</h3>
+            {deletedItems.length === 0 ? (
+              <p className="modal-hint">No deleted items.</p>
+            ) : (
+              <div className="deleted-items-list">
+                {deletedItems.map(item => (
+                  <div key={item.id} className="deleted-item-row">
+                    <div className="deleted-item-info">
+                      <span className="deleted-item-name">{item.item || 'Untitled'}</span>
+                      <span className="deleted-item-desc">{item.description}</span>
+                    </div>
+                    <div className="deleted-item-actions">
+                      <button
+                        className="btn-icon btn-small"
+                        onClick={() => { onRestoreItem(item.id); if (deletedItems.length <= 1) setShowDeletedModal(false) }}
+                        title="Restore item"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                      </button>
+                      {confirmDeleteId === item.id ? (
+                        <div className="confirm-delete-inline">
+                          <span className="confirm-text">Sure?</span>
+                          <button
+                            className="btn-danger btn-small"
+                            onClick={() => { onPermanentDelete(item.id); setConfirmDeleteId(null); if (deletedItems.length <= 1) setShowDeletedModal(false) }}
+                          >
+                            Yes
+                          </button>
+                          <button
+                            className="btn-secondary btn-small"
+                            onClick={() => setConfirmDeleteId(null)}
+                          >
+                            No
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          className="btn-icon btn-small btn-icon-danger"
+                          onClick={() => setConfirmDeleteId(item.id)}
+                          title="Permanently delete"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => { setShowDeletedModal(false); setConfirmDeleteId(null) }}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Paste Markdown Modal */}
       {showPasteModal && (
