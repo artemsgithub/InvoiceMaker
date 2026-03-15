@@ -7,9 +7,20 @@ import ChangelogModal from './components/ChangelogModal'
 import Toast from './components/Toast'
 import './App.css'
 
-const APP_VERSION = '1.0.5'
+const APP_VERSION = '1.0.5.1'
 
 const CHANGELOG = [
+  {
+    version: '1.0.5.1',
+    date: '2026-03-15',
+    changes: [
+      'Fixed content overflowing right edge on mobile (inputs, line items, modals)',
+      'Settings modal Add button and action buttons no longer clip off-screen',
+      'Line item qty/rate/total row properly contained on narrow screens',
+      'Global overflow-x hidden on html/body to prevent horizontal scroll',
+      'All inputs constrained to max-width 100% of their container',
+    ],
+  },
   {
     version: '1.0.5',
     date: '2026-03-15',

@@ -63,8 +63,14 @@
 
 @media (max-width: 768px) {
   .settings-modal {
-    width: calc(100% - 32px);
     max-width: none;
-    padding: 20px 16px;
+  }
+
+  .category-add {
+    flex-wrap: wrap;
+  }
+
+  .category-add input {
+    flex: 1 1 100%;
   }
 }
