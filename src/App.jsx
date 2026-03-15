@@ -7,9 +7,20 @@ import ChangelogModal from './components/ChangelogModal'
 import Toast from './components/Toast'
 import './App.css'
 
-const APP_VERSION = '1.0.4'
+const APP_VERSION = '1.0.5'
 
 const CHANGELOG = [
+  {
+    version: '1.0.5',
+    date: '2026-03-15',
+    changes: [
+      'Redesigned mobile saved invoices cards with 2-column grid layout',
+      'Compact inline labels replace oversized uppercase block labels',
+      'Action icons now display in a horizontal row instead of stacking',
+      'Fixed settings modal overflowing off-screen on mobile',
+      'All modals now properly constrained and scrollable on small screens',
+    ],
+  },
   {
     version: '1.0.4',
     date: '2026-03-15',
