@@ -7,9 +7,18 @@ import ChangelogModal from './components/ChangelogModal'
 import Toast from './components/Toast'
 import './App.css'
 
-const APP_VERSION = '1.0.1'
+const APP_VERSION = '1.0.2'
 
 const CHANGELOG = [
+  {
+    version: '1.0.2',
+    date: '2026-03-15',
+    changes: [
+      'Fixed PDF page breaks splitting table rows mid-content',
+      'Added document type selector (Invoice / Estimate)',
+      'PDF margins improved for cleaner multi-page output',
+    ],
+  },
   {
     version: '1.0.1',
     date: '2026-03-15',
@@ -55,6 +64,7 @@ const defaultInvoice = () => ({
   companyEmail: '',
   clientName: '',
   clientAddress: '',
+  documentType: 'INVOICE',
   invoiceNumber: '',
   invoiceDate: new Date().toISOString().split('T')[0],
   dueDate: '',
@@ -230,11 +240,12 @@ export default function App() {
     if (!element) return
     const html2pdf = (await import('html2pdf.js')).default
     const opt = {
-      margin: 0,
-      filename: `invoice-${invoice.invoiceNumber || 'draft'}.pdf`,
+      margin: [0.4, 0.4, 0.4, 0.4],
+      filename: `${(invoice.documentType || 'invoice').toLowerCase()}-${invoice.invoiceNumber || 'draft'}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css'] },
     }
     html2pdf().set(opt).from(element).save()
     showToast('PDF export started')

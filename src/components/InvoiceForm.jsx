@@ -102,9 +102,19 @@ export default function InvoiceForm({
       {/* Invoice Details */}
       <section className="form-section">
         <h3>Invoice Details</h3>
-        <div className="form-grid three-col">
+        <div className="form-grid four-col">
           <div className="form-field">
-            <label>Invoice #</label>
+            <label>Document Type</label>
+            <select
+              value={invoice.documentType || 'INVOICE'}
+              onChange={e => onUpdateField('documentType', e.target.value)}
+            >
+              <option value="INVOICE">Invoice</option>
+              <option value="ESTIMATE">Estimate</option>
+            </select>
+          </div>
+          <div className="form-field">
+            <label>{invoice.documentType === 'ESTIMATE' ? 'Estimate #' : 'Invoice #'}</label>
             <input
               value={invoice.invoiceNumber}
               onChange={e => onUpdateField('invoiceNumber', e.target.value)}
