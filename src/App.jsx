@@ -4,12 +4,23 @@ import InvoicePreview from './components/InvoicePreview'
 import SavedInvoices from './components/SavedInvoices'
 import SettingsModal from './components/SettingsModal'
 import ChangelogModal from './components/ChangelogModal'
+import TemplatePickerModal from './components/TemplatePickerModal'
 import Toast from './components/Toast'
 import './App.css'
 
-const APP_VERSION = '1.0.5.1'
+const APP_VERSION = '1.1.0'
 
 const CHANGELOG = [
+  {
+    version: '1.1.0',
+    date: '2026-04-01',
+    changes: [
+      'Invoice templates: save any invoice as a reusable template',
+      'New Invoice now offers template picker when templates exist',
+      'Template management (rename, delete) in Settings modal',
+      'Bookmark icon in mobile header for quick template saving',
+    ],
+  },
   {
     version: '1.0.5.1',
     date: '2026-03-15',
@@ -124,9 +135,16 @@ export default function App() {
     return saved ? JSON.parse(saved) : DEFAULT_CATEGORIES
   })
   const [deletedItems, setDeletedItems] = useState([])
+  const [templates, setTemplates] = useState(() => {
+    const saved = localStorage.getItem('invoiceTemplates')
+    return saved ? JSON.parse(saved) : []
+  })
   const [showSettings, setShowSettings] = useState(false)
   const [showChangelog, setShowChangelog] = useState(false)
   const [showMobilePreview, setShowMobilePreview] = useState(false)
+  const [showSaveTemplate, setShowSaveTemplate] = useState(false)
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false)
+  const [templateName, setTemplateName] = useState('')
   const [toast, setToast] = useState(null)
 
   const showToast = useCallback((message, type = 'success') => {
@@ -284,7 +302,16 @@ export default function App() {
   }
 
   const newInvoice = () => {
+    if (templates.length > 0) {
+      setShowTemplatePicker(true)
+    } else {
+      setInvoice(defaultInvoice())
+    }
+  }
+
+  const startBlankInvoice = () => {
     setInvoice(defaultInvoice())
+    setShowTemplatePicker(false)
   }
 
   const deleteInvoice = (id) => {
@@ -298,6 +325,76 @@ export default function App() {
     setCategories(newCategories)
     localStorage.setItem('invoiceCategories', JSON.stringify(newCategories))
     showToast('Categories updated')
+  }
+
+  const openSaveTemplate = () => {
+    const parts = [invoice.companyName, invoice.clientName].filter(Boolean)
+    setTemplateName(parts.length ? parts.join(' - ') : '')
+    setShowSaveTemplate(true)
+  }
+
+  const saveAsTemplate = () => {
+    const name = templateName.trim()
+    if (!name) return
+    const template = {
+      id: crypto.randomUUID(),
+      name,
+      createdAt: new Date().toISOString(),
+      companyName: invoice.companyName,
+      companyAddress: invoice.companyAddress,
+      companyPhone: invoice.companyPhone,
+      companyEmail: invoice.companyEmail,
+      clientName: invoice.clientName,
+      clientAddress: invoice.clientAddress,
+      documentType: invoice.documentType,
+      taxRate: invoice.taxRate,
+      notes: invoice.notes,
+      lineItems: invoice.lineItems.map(({ id, ...rest }) => rest),
+    }
+    const updated = [...templates, template]
+    setTemplates(updated)
+    localStorage.setItem('invoiceTemplates', JSON.stringify(updated))
+    setShowSaveTemplate(false)
+    setTemplateName('')
+    showToast('Template saved')
+  }
+
+  const deleteTemplate = (id) => {
+    const updated = templates.filter(t => t.id !== id)
+    setTemplates(updated)
+    localStorage.setItem('invoiceTemplates', JSON.stringify(updated))
+    showToast('Template deleted', 'info')
+  }
+
+  const renameTemplate = (id, newName) => {
+    const updated = templates.map(t => t.id === id ? { ...t, name: newName } : t)
+    setTemplates(updated)
+    localStorage.setItem('invoiceTemplates', JSON.stringify(updated))
+  }
+
+  const newFromTemplate = (template) => {
+    setInvoice({
+      id: crypto.randomUUID(),
+      companyName: template.companyName || '',
+      companyAddress: template.companyAddress || '',
+      companyPhone: template.companyPhone || '',
+      companyEmail: template.companyEmail || '',
+      clientName: template.clientName || '',
+      clientAddress: template.clientAddress || '',
+      documentType: template.documentType || 'INVOICE',
+      invoiceNumber: '',
+      invoiceDate: new Date().toISOString().split('T')[0],
+      dueDate: '',
+      taxRate: template.taxRate || 0,
+      notes: template.notes || '',
+      lineItems: (template.lineItems || []).map(li => ({
+        ...li,
+        id: crypto.randomUUID(),
+      })),
+    })
+    setShowTemplatePicker(false)
+    setView('editor')
+    showToast('Invoice created from template')
   }
 
   const exportPDFFromElement = async (element, inv) => {
@@ -417,6 +514,7 @@ export default function App() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           </button>
           <button className="btn-secondary" onClick={newInvoice}>New Invoice</button>
+          <button className="btn-secondary" onClick={openSaveTemplate}>Save as Template</button>
           <button className="btn-secondary" onClick={() => setView('saved')}>
             Saved Invoices
           </button>
@@ -429,6 +527,9 @@ export default function App() {
           </button>
           <button className="btn-icon" onClick={newInvoice} title="New Invoice">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          </button>
+          <button className="btn-icon" onClick={openSaveTemplate} title="Save as Template">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </button>
           <button className="btn-icon" onClick={() => setView('saved')} title="Saved Invoices">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
@@ -506,6 +607,9 @@ export default function App() {
         <SettingsModal
           categories={categories}
           onSave={handleSaveCategories}
+          templates={templates}
+          onDeleteTemplate={deleteTemplate}
+          onRenameTemplate={renameTemplate}
           onClose={() => setShowSettings(false)}
         />
       )}
@@ -513,6 +617,35 @@ export default function App() {
         <ChangelogModal
           changelog={CHANGELOG}
           onClose={() => setShowChangelog(false)}
+        />
+      )}
+      {showSaveTemplate && (
+        <div className="modal-overlay" onClick={() => setShowSaveTemplate(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h3>Save as Template</h3>
+            <p className="settings-hint">Give this template a name so you can reuse it later.</p>
+            <input
+              type="text"
+              value={templateName}
+              onChange={e => setTemplateName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && saveAsTemplate()}
+              placeholder="Template name"
+              style={{ width: '100%', marginBottom: '16px' }}
+              autoFocus
+            />
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => setShowSaveTemplate(false)}>Cancel</button>
+              <button className="btn-primary" onClick={saveAsTemplate} disabled={!templateName.trim()}>Save Template</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showTemplatePicker && (
+        <TemplatePickerModal
+          templates={templates}
+          onSelectTemplate={newFromTemplate}
+          onStartBlank={startBlankInvoice}
+          onClose={() => setShowTemplatePicker(false)}
         />
       )}
       {toast && <Toast key={toast.id} message={toast.message} type={toast.type} onDone={() => setToast(null)} />}
