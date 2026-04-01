@@ -1,0 +1,80 @@
+.template-picker-modal {
+  max-width: 480px;
+}
+
+.template-blank-btn {
+  width: 100%;
+  margin: 12px 0 4px;
+  padding: 12px;
+  font-size: 1rem;
+}
+
+.template-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  color: var(--text-light);
+  font-size: 0.8rem;
+}
+
+.template-divider::before,
+.template-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.template-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+.template-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.template-card:hover {
+  border-color: var(--accent);
+  background: var(--bg-card);
+}
+
+.template-card-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.template-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+@media (max-width: 768px) {
+  .template-picker-modal {
+    max-width: none;
+  }
+
+  .template-list {
+    max-height: 50vh;
+  }
+}

@@ -61,6 +61,79 @@
   min-width: 0;
 }
 
+.template-mgmt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.template-mgmt-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.template-mgmt-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9rem;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.template-mgmt-name:hover {
+  color: var(--accent);
+}
+
+.template-rename-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9rem;
+  padding: 4px 8px;
+}
+
+.template-mgmt-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-icon-small {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-light);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.btn-icon-small:hover {
+  color: var(--text);
+  border-color: var(--text-light);
+}
+
+.btn-icon-danger {
+  color: var(--danger);
+}
+
+.btn-icon-danger:hover {
+  color: var(--danger-hover);
+  border-color: var(--danger);
+}
+
 @media (max-width: 768px) {
   .settings-modal {
     max-width: none;
